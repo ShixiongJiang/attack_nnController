@@ -1,3 +1,5 @@
+import random
+
 import gymnasium
 import safety_gymnasium
 from gym.spaces import Discrete, Dict, Box
@@ -12,7 +14,8 @@ class SafetyPointGoal1(gymnasium.Env):
         # super(SafetyPointGoal1, self).__init__()
         self.hazard_dist = None
         self.goal_dist = None
-        env_id = 'SafetyPointGoal1-v0'
+        env_id = 'SafetyPointGoalHazard1-v0'
+        # env_id = 'SafetyPointGoal1-v0'
         safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode='human')
         self.env = safety_gymnasium.wrappers.SafetyGymnasium2Gymnasium(safety_gymnasium_env)
         # This default action sapce is wrong
@@ -91,21 +94,81 @@ class SafetyPointGoal1(gymnasium.Env):
         self.env.close()
 
 env = SafetyPointGoal1()
+obs, info = env.reset()
+object = env.env.unwrapped._get_task()
+# object_methods = [method_name for method_name in dir(object)
+#                   if callable(getattr(object, method_name))]
 
-model = PPO.load('SafetyPointGoal1-PPO-2.zip', env=env)
+
+# print(dir(object))
+# config = env.env.unwrapped.config
+# print(env.env.config)
+# print(object._build_world_config(config))
+# # print(dir(env.env))
+# print(dir(env.env))
+model = PPO.load('SafetyPointGoal1-PPO-3.zip', env=env)
 # model = PPO.load('SafetyPointGoal1-PPO-1.zip', env=env)
 # env = model.get_env()
 obs, info = env.reset()
 # env.render("human")
-i = 0
+j = 0
 reach = 0
-
-for i in range(10000):
+y = []
+u = []
+for i in range(1000000):
     action, _state = model.predict(obs, deterministic=True)
+    # action = [0.03, -1]
     # action =
-    # action = [0, -1]
-    print(action)
+    # action = [(random.random() - 0.5) * 2,(random.random() - 0.5) * 2]
+    # print(f'accelaration: {obs[0:3]}, velo:{obs[3:6]}, magnetometer:{obs[9:12]}, action: {action}')
     obs, reward, done, trun, info = env.step(action)
+#     if done:
+#         goal_dist = 3 - 3 * max(obs[12:28])
+#         # print(goal_dist)
+#         if goal_dist <= 0.4:
+#             reach +=1
+#         j = j + 1
+#     if j >= 100:
+#         break
+# print(reach)
+    # if done or trun:
+    #     break
+    # y.append(obs[0:12])
+    # u.append(action)
+    # obstacle = np.argmax(obs[28:44])
+    # # print(obstacle)
+    # turn = obs[4]
+    # velo = obs[3]
+    # if obstacle > 4 and obstacle < 12:
+    #     action0 = -1
+    # else:
+    #     action0 = 1
+    # if obstacle > 4 and obstacle < 12:
+    #     if obstacle < 8:
+    #         action1 = -1 * (8 - obstacle) / 3 * abs(velo * 5) / (3 - 3 * max(obs[28:44]))
+    #     elif obstacle > 8:
+    #         action1 = 1 * (obstacle - 8) / 3 * abs(velo * 5) / (3 - 3 * max(obs[28:44]))
+    #     else:
+    #         action1 = 0
+    # else:
+    #     if obstacle <= 4 :
+    #         action1 = 1 * (obstacle + 1) / 3 * abs(velo * 5) / (3 - 3 * max(obs[28:44]))
+    #     elif obstacle >= 13 and obstacle < 16:
+    #         action1 = -1 * (15 - obstacle ) / 3 * abs(velo * 5) / (3 - 3 * max(obs[28:44]))
+    #     else:
+    #         action1 = 0
+    # # action = [action0, action1]
+    # # print(max(obs[28:44]))
+    #
+    #
+    #
+    # # print(turn)
+    # angular = obs[8]
+    # velo =
+    # print('+++++++++++++++++++++++++++++++++++++++++++')
+
+
+    # print(env.env.metadata)
     # print(obs[6:9])
     # if done:
     #     goal_dist = 3 - 3 * max(obs[12:28])
@@ -126,3 +189,15 @@ for i in range(10000):
 #             reach += 1
 #
 # print(reach)
+
+# import sysid
+# import pylab as pl
+# ss1 = sysid.StateSpaceDiscreteLinear(
+#     A=np.matrix([[0,0.1,0.2],[0.2,0.3,0.4],[0.4,0.3,0.2]]),
+#     B=np.matrix([[1,0],[0,1],[0,-1]]),
+#     C=np.matrix([[1,0,0],[0,1,0]]), D=np.matrix([[0,0],[0,0]]),
+#     Q=pl.diag([0.1,0.1,0.1]), R=pl.diag([0.04,0.04]), dt=0.1)
+#
+# tf =
+#
+# sysid.subspace_det_algo1(y=y, u=u, )

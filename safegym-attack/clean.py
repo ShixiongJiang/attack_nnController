@@ -1,0 +1,44 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import minimize, Bounds, LinearConstraint, NonlinearConstraint, root
+
+import torch
+import torch.nn as nn
+from customEnv.env import SafetyPointGoal1
+from stable_baselines3 import A2C, PPO
+
+env = SafetyPointGoal1(render_mode='rgb_array')
+model = PPO.load('train/SafetyPointGoal1-PPO-2.zip', env=env)
+adv_model = PPO.load('train/Adv_SafetyPointGoal1-PPO.zip', env=env)
+epoch = 0
+reach = 0
+violate = 0
+while True:
+    # attack = black_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
+    obs, info = env.reset()
+    while True:
+    # attack = black_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
+    # attack = white_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
+    # print(attack)
+    # obs = attack + obs
+        action, _state = model.predict(obs, deterministic=True)
+        action[0] = action[0] / 20
+
+
+        obs, reward, done, trun, info = env.step(action)
+        # print(obs[0:12])
+        if done:
+
+            epoch +=1
+            goal_dist = 3 - 3 * max(obs[12:28])
+            obs_dist = 3 - 3 * max(obs[28:44])
+            if goal_dist < 0.4:
+                reach += 1
+            elif obs_dist < 0.2:
+                violate += 1
+            # obs, info = env.reset()
+            break
+
+    if epoch >= 500:
+        break
+print(f'clean attack violation:{violate}, reach:{ reach}')

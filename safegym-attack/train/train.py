@@ -1,3 +1,4 @@
+
 import gymnasium
 import safety_gymnasium
 from gym.spaces import Discrete, Dict, Box
@@ -10,8 +11,8 @@ from copy import deepcopy
 class SafetyPointGoal1(gymnasium.Env):
     def __init__(self, config=None):
         # super(SafetyPointGoal1, self).__init__()
-        env_id = 'SafetyPointGoal1-v0'
-        safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode='rgb_array')
+        env_id = 'SafetyPointGoalHazard1-v0'
+        safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode=None)
         self.env = safety_gymnasium.wrappers.SafetyGymnasium2Gymnasium(safety_gymnasium_env)
         self.action_space = self.env.action_space
         self.observation_space = self.env.observation_space
@@ -63,14 +64,14 @@ class SafetyPointGoal1(gymnasium.Env):
         self.final_reward_cache.append(final_reward)
         if goal_dist < 0.4:
             done = True
-            final_reward = 20
+            final_reward = 10
             self.reset()
         if hazard_dist < 0.2:
             done = True
-            final_reward = -2
+            final_reward = -1000
             self.reset()
         if truncated:
-            final_reward = -3
+            final_reward = -5
         return obs, final_reward, done,truncated, info
 
     def set_state(self, state):
@@ -98,18 +99,20 @@ class SafetyPointGoal1(gymnasium.Env):
 # env = gymnasium.make('SafetyPointGoal1Gymnasium-v0',
 #                      render_mode='human')  # step returns (next_obervation, reward, terminated, truncated, info)
 from stable_baselines3 import A2C, SAC, PPO
-
+import torch as th
 env = SafetyPointGoal1()
-
-model = PPO("MlpPolicy", env, verbose=0)
-# model = PPO.load('SafetyPointGoal1-PPO-1.zip', env=env)
-model.learn(total_timesteps=1000000)
+policy_kwargs = dict(activation_fn=th.nn.ReLU,
+                     net_arch=dict(pi=[64, 64, 64, 64], vf=[64, 64, 64, 64]))
+# model = PPO("MlpPolicy", env, verbose=0, policy_kwargs=policy_kwargs)
+model = PPO.load('SafetyPointGoal1-PPO-3.zip', env=env)
+# print(model.policy.net_arch)
+model.learn(total_timesteps=500000)
 
 # vec_env = model.get_env()
 # obs = env.reset()
 # env.render("human")
 # print(vec_env.unwrapped.unwrapped.st)
-model.save('SafetyPointGoal1-PPO-2.zip')
+model.save('SafetyPointGoal1-PPO-3.zip')
 # for i in range(5000):
 #     action, _state = model.predict(obs, deterministic=True)
 #     obs, reward, done, truncated, info = env.step(action)

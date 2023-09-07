@@ -17,7 +17,8 @@ class SafetyPointGoal1(gymnasium.Env):
         # self.env.observation_space
         low = self.observation_space.low.astype('float32')
         high = self.observation_space.high.astype('float32')
-        self.observation_space = gymnasium.spaces.Box(low=low, high=high, dtype='float32')
+        # self.observation_space = gymnasium.spaces.Box(low=low, high=high, dtype='float32')
+        self.action_space = gymnasium.spaces.Box(low=np.array([-1, -1]), high=np.array([1, 1]), dtype=np.float32)
         # print(self.observation_space)
         self.radius = 0.2
         self.reward_cache = []
@@ -82,3 +83,4 @@ class SafetyPointGoal1(gymnasium.Env):
 
     def close(self):
         self.env.close()
+

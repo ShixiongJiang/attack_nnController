@@ -1,17 +1,16 @@
-from safety_gym.envs.engine import Engine
+"""Goal level 0."""
+import safety_gymnasium
+# Introduce the required objects
+from safety_gymnasium.assets.geoms import Goal
+# Need to inherit from BaseTask
+from safety_gymnasium.bases.base_task import BaseTask
 
-config = {
-    'robot_base': 'xmls/point.xml',
-    'task': 'goal',
-    'observe_goal_lidar': True,
-    'observe_box_lidar': True,
-    'observe_hazards': True,
-    'observe_vases': True,
-    'constrain_hazards': True,
-    'lidar_max_dist': 3,
-    'lidar_num_bins': 16,
-    'hazards_num': 4,
-    'vases_num': 0
-}
 
-env = Engine(config)
+
+
+# env = GoalLevel0()
+env_id = 'SafetyPointGoal1-v0'
+safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode=None)
+
+env = safety_gymnasium.wrappers.SafetyGymnasium2Gymnasium(safety_gymnasium_env)
+print(env.unwrapped.spec)
