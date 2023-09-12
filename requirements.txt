@@ -1,0 +1,17 @@
+control==0.9.4
+gym==0.26.2
+gymnasium==0.28.1
+joblib==1.3.2
+matplotlib==3.7.2
+mujoco_py==2.1.2.14
+numpy==1.23.5
+pandas==2.0.3
+Pillow==10.0.0
+Pillow==10.0.0
+safety_gymnasium==1.0.0
+scipy==1.11.2
+setuptools==68.0.0
+stable_baselines3==2.1.0
+sysidentpy==0.3.1
+torch==2.0.1
+xmltodict==0.13.0
