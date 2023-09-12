@@ -8,8 +8,8 @@ from customEnv.env import SafetyPointGoal1
 from stable_baselines3 import A2C, PPO
 
 env = SafetyPointGoal1(render_mode='rgb_array')
-model = PPO.load('train/SafetyPointGoal1-PPO-2.zip', env=env)
-adv_model = PPO.load('train/Adv_SafetyPointGoal1-PPO.zip', env=env)
+model = PPO.load('train/SafetyPointGoal1-PPO-5.zip', env=env)
+# adv_model = PPO.load('train/SafetyPointGoal1-PPO-5.zip', env=env)
 epoch = 0
 reach = 0
 violate = 0
@@ -27,7 +27,7 @@ while True:
 
         obs, reward, done, trun, info = env.step(action)
         # print(obs[0:12])
-        if done:
+        if done or trun:
 
             epoch +=1
             goal_dist = 3 - 3 * max(obs[12:28])

@@ -102,17 +102,18 @@ from stable_baselines3 import A2C, SAC, PPO
 import torch as th
 env = SafetyPointGoal1()
 policy_kwargs = dict(activation_fn=th.nn.ReLU,
-                     net_arch=dict(pi=[64, 64, 64, 64], vf=[64, 64, 64, 64]))
-# model = PPO("MlpPolicy", env, verbose=0, policy_kwargs=policy_kwargs)
-model = PPO.load('SafetyPointGoal1-PPO-3.zip', env=env)
+                     net_arch=dict(pi=[64, 64], vf=[64, 64]))
+model = PPO("MlpPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
+# model = PPO.load('SafetyPointGoal1-SAC-1.zip', env=env)
 # print(model.policy.net_arch)
-model.learn(total_timesteps=500000)
+model.set_env(env)
+model.learn(total_timesteps=1000000)
 
 # vec_env = model.get_env()
 # obs = env.reset()
 # env.render("human")
 # print(vec_env.unwrapped.unwrapped.st)
-model.save('SafetyPointGoal1-PPO-3.zip')
+model.save('SafetyPointGoal1-PPO-5.zip')
 # for i in range(5000):
 #     action, _state = model.predict(obs, deterministic=True)
 #     obs, reward, done, truncated, info = env.step(action)

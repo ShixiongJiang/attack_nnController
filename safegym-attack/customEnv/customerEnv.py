@@ -9,7 +9,7 @@ from safety_gymnasium.bases.base_task import BaseTask
 
 
 # env = GoalLevel0()
-env_id = 'SafetyPointGoal1-v0'
+env_id = 'SafetyPointGoalHazard1-v0'
 safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode=None)
 
 env = safety_gymnasium.wrappers.SafetyGymnasium2Gymnasium(safety_gymnasium_env)

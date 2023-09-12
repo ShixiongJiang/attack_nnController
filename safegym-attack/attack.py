@@ -156,9 +156,9 @@ def white_attack(env, state, model, surro_model, adv_model, epsilon):
         # print('find solution')
         return attack
 
-env = SafetyPointGoal1(render_mode='human' )
-model = PPO.load('train/SafetyPointGoal1-PPO-2.zip', env=env)
-surro_model = PPO.load('train/SafetyPointGoal1-PPO-2.zip', env=env)
+env = SafetyPointGoal1(render_mode='None' )
+model = PPO.load('train/SafetyPointGoal1-PPO-3.zip', env=env)
+surro_model = PPO.load('train/SafetyPointGoal1-PPO-3.zip', env=env)
 adv_model = PPO.load('train/Adv_SafetyPointGoal1-PPO.zip', env=env)
 
 obs, info = env.reset()

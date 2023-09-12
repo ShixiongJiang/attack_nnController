@@ -9,6 +9,7 @@ from copy import deepcopy
 class SafetyPointGoal1(gymnasium.Env):
     def __init__(self, render_mode='human'):
         # super(SafetyPointGoal1, self).__init__()
+        # env_id = 'SafetyPointGoalHazard1-v0'
         env_id = 'SafetyPointGoal1-v0'
         safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode=render_mode)
         self.env = safety_gymnasium.wrappers.SafetyGymnasium2Gymnasium(safety_gymnasium_env)
