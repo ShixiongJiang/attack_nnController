@@ -48,8 +48,8 @@ class SafetyPointGoal1(gymnasium.Env):
         goal_dist = 3 - 3 *max(obs[12:28])
         hazard_dist = 3 - 3 *max(obs[28:44])
         # print(hazard_dist)
-        reward = self.radius * 2 - goal_dist
-        obs_reward = hazard_dist - self.radius
+        reward = self.radius * 2 - goal_dist + 0.2
+        obs_reward = hazard_dist - self.radius - 0.1
         self.reward_cache.append(reward)
         self.avoid_reward_cache.append(obs_reward)
         if self.steps < 10:
@@ -103,8 +103,8 @@ import torch as th
 env = SafetyPointGoal1()
 policy_kwargs = dict(activation_fn=th.nn.ReLU,
                      net_arch=dict(pi=[64, 64], vf=[64, 64]))
-model = PPO("MlpPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
-# model = PPO.load('SafetyPointGoal1-SAC-1.zip', env=env)
+# model = PPO("MlpPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
+model = PPO.load('SafetyPointGoal1-PPO-6.zip', env=env)
 # print(model.policy.net_arch)
 model.set_env(env)
 model.learn(total_timesteps=1000000)
@@ -113,7 +113,7 @@ model.learn(total_timesteps=1000000)
 # obs = env.reset()
 # env.render("human")
 # print(vec_env.unwrapped.unwrapped.st)
-model.save('SafetyPointGoal1-PPO-5.zip')
+model.save('SafetyPointGoal1-PPO-6.zip')
 # for i in range(5000):
 #     action, _state = model.predict(obs, deterministic=True)
 #     obs, reward, done, truncated, info = env.step(action)
