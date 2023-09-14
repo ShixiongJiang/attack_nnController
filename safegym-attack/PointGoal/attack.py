@@ -1,11 +1,9 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.optimize import minimize, Bounds, LinearConstraint, NonlinearConstraint, root
 
 import torch
 import torch.nn as nn
 from customEnv.env import SafetyPointGoal1
-from stable_baselines3 import A2C, PPO
+from stable_baselines3 import PPO
 def black_attack(env, state, model, surro_model, adv_model, epsilon):
     action = surro_model.predict(state)[0]
     #     print(action)
@@ -157,9 +155,9 @@ def white_attack(env, state, model, surro_model, adv_model, epsilon):
         return attack
 
 env = SafetyPointGoal1(render_mode='None' )
-model = PPO.load('train/SafetyPointGoal1-PPO-3.zip', env=env)
-surro_model = PPO.load('train/SafetyPointGoal1-PPO-3.zip', env=env)
-adv_model = PPO.load('train/Adv_SafetyPointGoal1-PPO.zip', env=env)
+model = PPO.load('train/model/SafetyPointGoal1-PPO-3.zip', env=env)
+surro_model = PPO.load('train/model/SafetyPointGoal1-PPO-3.zip', env=env)
+adv_model = PPO.load('train/model/Adv_SafetyPointGoal1-PPO.zip', env=env)
 
 obs, info = env.reset()
 

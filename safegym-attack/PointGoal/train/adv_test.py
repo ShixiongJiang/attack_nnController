@@ -84,7 +84,7 @@ class AdvSafetyPointGoal1(gymnasium.Env):
 
 env = AdvSafetyPointGoal1()
 
-model = PPO.load('Adv_SafetyPointGoal1-PPO.zip', env=env)
+model = PPO.load('model/Adv_SafetyPointGoal1-PPO.zip', env=env)
 # env = model.get_env()
 obs, info = env.reset()
 # env.render("human")

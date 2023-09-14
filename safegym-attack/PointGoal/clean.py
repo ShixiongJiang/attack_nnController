@@ -1,14 +1,8 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.optimize import minimize, Bounds, LinearConstraint, NonlinearConstraint, root
-
-import torch
-import torch.nn as nn
 from customEnv.env import SafetyPointGoal1
-from stable_baselines3 import A2C, PPO
+from stable_baselines3 import PPO
 
 env = SafetyPointGoal1(render_mode='rgb_array')
-model = PPO.load('train/SafetyPointGoal1-PPO-5.zip', env=env)
+model = PPO.load('train/model/SafetyPointGoal1-PPO-5.zip', env=env)
 # adv_model = PPO.load('train/SafetyPointGoal1-PPO-5.zip', env=env)
 epoch = 0
 reach = 0
