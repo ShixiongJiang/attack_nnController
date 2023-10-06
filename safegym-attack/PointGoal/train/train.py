@@ -1,7 +1,7 @@
 
 import gymnasium
 import safety_gymnasium
-from gym.spaces import Discrete, Dict, Box
+# from gym.spaces import Discrete, Dict, Box
 
 import numpy as np
 import math
@@ -11,7 +11,7 @@ from copy import deepcopy
 class SafetyPointGoal1(gymnasium.Env):
     def __init__(self, config=None):
         # super(SafetyPointGoal1, self).__init__()
-        env_id = 'SafetyPointGoalHazard1-v0'
+        env_id = 'SafetyPointGoal1-v0'
         safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode=None)
         self.env = safety_gymnasium.wrappers.SafetyGymnasium2Gymnasium(safety_gymnasium_env)
         self.action_space = self.env.action_space
@@ -103,8 +103,8 @@ import torch as th
 env = SafetyPointGoal1()
 policy_kwargs = dict(activation_fn=th.nn.ReLU,
                      net_arch=dict(pi=[64, 64], vf=[64, 64]))
-# model = PPO("MlpPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
-model = PPO.load('SafetyPointGoal1-PPO-6.zip', env=env)
+model = PPO("MlpPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
+# model = PPO.load('SafetyPointGoal1-PPO-6.zip', env=env)
 # print(model.policy.net_arch)
 model.set_env(env)
 model.learn(total_timesteps=1000000)
