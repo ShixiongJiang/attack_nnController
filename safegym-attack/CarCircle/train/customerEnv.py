@@ -53,10 +53,11 @@ class SafetyCarCircle(gymnasium.Env):
         vel = self.agent.vel
         u, v, _ = vel
         velocity = np.sqrt(u ** 2 + v ** 2)
+        # print(velocity)
         # velocity = (-u * y + v * x)
-        goal_reward = velocity - 4
-        wall_reward = (1.12 - x)
-        circle_reward = min(1.49 - radius, radius - 1.2)
+        goal_reward = velocity - 5
+        wall_reward = (1.12 - x) * 20
+        circle_reward = (1.49 - radius) * 20
         self.reward_cache.append(goal_reward)
         self.avoid_reward_cache.append(min(wall_reward, circle_reward))
 
@@ -73,10 +74,11 @@ class SafetyCarCircle(gymnasium.Env):
         if info['cost'] != 0:
             done = True
             # self.reset()
-            final_reward = -100
+            final_reward = -1000
 
         if 1.50 - radius < 0:
-            final_reward = -100
+            final_reward = -1000
+            self.reset()
         # self.final_reward_cache.append(final_reward)
         # if goal_dist < 0.4:
         #     done = True

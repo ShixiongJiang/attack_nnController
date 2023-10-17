@@ -10,8 +10,9 @@ from copy import deepcopy
 class AdvSafetyPointGoal1(gymnasium.Env):
     def __init__(self, config=None):
         # super(SafetyPointGoal1, self).__init__()
-        env_id = 'SafetyPointGoal1-v0'
-        safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode='rgb_array')
+        # env_id = 'SafetyPointGoal1-v0'
+        env_id = 'SafetyPointGoalHazard0-v0'
+        safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode=None)
         self.env = safety_gymnasium.wrappers.SafetyGymnasium2Gymnasium(safety_gymnasium_env)
         self.action_space = self.env.action_space
         self.observation_space = self.env.observation_space
@@ -61,11 +62,11 @@ class AdvSafetyPointGoal1(gymnasium.Env):
         self.final_reward_cache.append(final_reward)
         if goal_dist < 0.4:
             done = True
-            # final_reward = 20
+            final_reward = -50
             self.reset()
         if hazard_dist < 0.2:
             done = True
-            final_reward = 5
+            final_reward = 50
             self.reset()
         return obs, final_reward, done,truncated, info
 

@@ -2,19 +2,20 @@ import random
 
 import gymnasium
 import safety_gymnasium
-from gym.spaces import Discrete, Dict, Box
+# from gym.spaces import Discrete, Dict, Box
 
 import numpy as np
 import math
 from copy import deepcopy
 from stable_baselines3 import A2C, PPO
-from gym import spaces
+# from gym import spaces
+
 class SafetyPointGoal1(gymnasium.Env):
-    def __init__(self, config=None):
+    def __init__(self, config=None, seed=None):
         # super(SafetyPointGoal1, self).__init__()
         self.hazard_dist = None
         self.goal_dist = None
-        env_id = 'SafetyPointGoalHazard1-v0'
+        env_id = 'SafetyPointGoalHazard0-v0'
         # env_id = 'SafetyPointGoal1-v0'
         safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode='human')
         self.env = safety_gymnasium.wrappers.SafetyGymnasium2Gymnasium(safety_gymnasium_env)
@@ -30,6 +31,7 @@ class SafetyPointGoal1(gymnasium.Env):
         self.final_reward_cache = []
         self.steps = 0
         self.done = False
+        self.seed = seed
 
 
     # def _get_obs(self):
@@ -38,8 +40,9 @@ class SafetyPointGoal1(gymnasium.Env):
     # def _get_info(self):
     #     return {"distance": np.linalg.norm(self._agent_location - self._target_location, ord=1)}
     def reset(self, seed=None, options=None):
+
         super().reset(seed=seed)
-        obs, info = self.env.reset()
+        obs, info = self.env.reset(seed=self.seed)
         self.steps = 0
         self.done = True
         return obs, info
@@ -106,7 +109,7 @@ object = env.env.unwrapped._get_task()
 # print(object._build_world_config(config))
 # # print(dir(env.env))
 # print(dir(env.env))
-model = PPO.load('SafetyPointGoal1-PPO-6.zip', env=env)
+model = PPO.load('model/SafetyPointGoal1-PPO-7.zip', env=env)
 # model = PPO.load('SafetyPointGoal1-PPO-1.zip', env=env)
 # env = model.get_env()
 obs, info = env.reset()
@@ -117,11 +120,13 @@ y = []
 u = []
 for i in range(1000000):
     action, _state = model.predict(obs, deterministic=True)
+
     # action = [0.03, -1]
     # action =
     # action = [(random.random() - 0.5) * 2,(random.random() - 0.5) * 2]
     # print(f'accelaration: {obs[0:3]}, velo:{obs[3:6]}, magnetometer:{obs[9:12]}, action: {action}')
     obs, reward, done, trun, info = env.step(action)
+    # obs, reward, done, trun, info = env.step([0,0])
 #     if done:
 #         goal_dist = 3 - 3 * max(obs[12:28])
 #         # print(goal_dist)
