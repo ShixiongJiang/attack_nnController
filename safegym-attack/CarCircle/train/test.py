@@ -12,12 +12,13 @@ for _ in range(1000):
     # action = env.action_space.sample()  # this is where you would insert your policy
     action, _state = model.predict(obs, deterministic=True)
 
-    # observation, reward, terminated, truncated, info = env.step(action)
-    observation, reward, terminated, truncated, info = env.step([0, 0])
+    obs, reward, terminated, truncated, info = env.step(action)
+    # print(reward)
+    # observation, reward, terminated, truncated, info = env.step([0, 0])
 
     # print(reward)
     if terminated or truncated:
-        observation, info = env.reset()
+        obs, info = env.reset()
 env.close()
 
 

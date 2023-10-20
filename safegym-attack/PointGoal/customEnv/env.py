@@ -11,13 +11,13 @@ from stable_baselines3 import A2C, PPO
 # from gym import spaces
 
 class SafetyPointGoal1(gymnasium.Env):
-    def __init__(self, config=None, seed=None):
+    def __init__(self, config=None, seed=None, render_mode=None):
         # super(SafetyPointGoal1, self).__init__()
         self.hazard_dist = None
         self.goal_dist = None
         env_id = 'SafetyPointGoalHazard0-v0'
         # env_id = 'SafetyPointGoal1-v0'
-        safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode=None)
+        safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode=render_mode)
         self.env = safety_gymnasium.wrappers.SafetyGymnasium2Gymnasium(safety_gymnasium_env)
         # This default action sapce is wrong
         self.action_space = self.env.action_space

@@ -21,6 +21,7 @@ def black_attack(env, state, model, surro_model, adv_model, epsilon):
     state = torch.from_numpy(state)
 
     state = state.detach().unsqueeze(0).requires_grad_(True)
+    effect = 1000
     for i in range(30):
 
         action = surro_model.policy._predict(state)[0].requires_grad_(True)
@@ -30,8 +31,7 @@ def black_attack(env, state, model, surro_model, adv_model, epsilon):
 
         # compute the distance
         pdist = torch.nn.PairwiseDistance(p=2)
-        loss = pdist(torch.tensor([op_action]), action)
-
+        loss = (torch.tensor([op_action]) - action).pow(2).sum().sqrt()
         # loss = mse(torch.tensor([op_action]).requires_grad_(True), action)
         surro_model.policy.zero_grad()
         loss = loss.double()
@@ -57,8 +57,11 @@ def black_attack(env, state, model, surro_model, adv_model, epsilon):
         # next_obs_dist = np.linalg.norm(env.sysd.A @ _state + env.sysd.B @ action_next.detach().numpy() - env.obstacle)
         # print(dist -pertub_dist)
         if pertub_dist <= dist:
-            attack = (state.detach().numpy() - _state)[0]
-
+            #
+            if loss <= effect:
+                effect = loss
+                # print(effect)
+                attack = (state.detach().numpy() - _state)[0]
     # if pertub_obs_dist - 0.2 > 0:
     #
     #     if next_obs_dist < effect:
@@ -113,7 +116,7 @@ def white_attack(env, state, model, surro_model, adv_model, epsilon):
     # print(model.predict(state, deterministic=True)[0])
     # next_origin_obs_dist = np.linalg.norm(env.sysd.A @ _state + env.sysd.B @ _action - env.obstacle)
     # effect = next_origin_obs_dist
-
+    effect = 1000
     for i in range(30):
 
         action = model.policy._predict(state)[0].requires_grad_(True)
@@ -124,7 +127,7 @@ def white_attack(env, state, model, surro_model, adv_model, epsilon):
 
         # compute the distance
         pdist = torch.nn.PairwiseDistance(p=2)
-        loss = pdist(torch.tensor([op_action]), action)
+        loss = (torch.tensor([op_action]) - action).pow(2).sum().sqrt()
 
         # loss = mse(torch.tensor([op_action]).requires_grad_(True), action)
         model.policy.zero_grad()
@@ -156,8 +159,11 @@ def white_attack(env, state, model, surro_model, adv_model, epsilon):
         # next_obs_dist = np.linalg.norm(env.sysd.A @ _state + env.sysd.B @ action_next.detach().numpy() - env.obstacle)
         # print(dist -pertub_dist)
         if pertub_dist <= dist:
-            attack = (state.detach().numpy() - _state)[0]
-
+            #
+            if loss <= effect:
+                effect = loss
+                # print(effect)
+                attack = (state.detach().numpy() - _state)[0]
     # if pertub_obs_dist - 0.2 > 0:
     #
     #     if next_obs_dist < effect:
@@ -170,105 +176,177 @@ def white_attack(env, state, model, surro_model, adv_model, epsilon):
         # print('find solution')
         return attack
 
-env = SafetyPointGoal1( )
+env = SafetyPointGoal1()
 model = PPO.load('train/model/SafetyPointGoal1-PPO-7.zip', env=env)
 surro_model = PPO.load('train/model/SafetyPointGoal1-PPO-6.zip', env=env)
 adv_model = PPO.load('train/model/Adv_SafetyPointGoal1-PPO.zip', env=env)
 
 obs, info = env.reset()
-epsilon = 0.5
-
-epoch = 0
-reach = 0
-violate = 0
-while True:
-    # attack = black_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
-    obs, info = env.reset()
-
+epsilon = 0.7
+def white(env,  model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon):
+    epoch = 0
+    reach = 0
+    violate = 0
     while True:
-        attack = white_attack(env, obs, model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon)
-        print(attack)
-        obs = attack + obs
-        action, _state = model.predict(obs, deterministic=True)
+        # attack = black_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
+        obs, info = env.reset()
 
-        obs, reward, done, trun, info = env.step(action)
-        # print(obs[0:12])
-        if done or trun:
-            epoch +=1
-            goal_dist = 3 - 3 * max(obs[12:28])
-            obs_dist = 3 - 3 * max(obs[28:44])
-            if goal_dist < 0.4:
-                reach +=1
-            elif obs_dist < 0.2:
-                violate += 1
+        while True:
+            attack = white_attack(env, obs, model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon)
+            # print(attack)
+            obs = attack + obs
+            action, _state = model.predict(obs, deterministic=True)
+
+            obs, reward, done, trun, info = env.step(action)
+            # print(obs[0:12])
+            if done or trun:
+                epoch +=1
+                goal_dist = 3 - 3 * max(obs[12:28])
+                obs_dist = 3 - 3 * max(obs[28:44])
+                if goal_dist < 0.4:
+                    reach +=1
+                elif obs_dist < 0.2:
+                    violate += 1
+                break
+        if epoch >= 100:
             break
-    if epoch >= 100:
-        break
-print(f'white attack violation:{violate}, reach:{ reach}')
+    print(f'white attack violation:{violate}, reach:{ reach}')
 # env.close()
 # env = SafetyPointGoal1(render_mode='rgb_array')
 # obs, info = env.reset()
 
-
-epoch = 0
-reach = 0
-violate = 0
-while True:
-    # attack = black_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
-    obs, info = env.reset()
+def black(env,  model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon):
+    epoch = 0
+    reach = 0
+    violate = 0
     while True:
-        attack = black_attack(env, obs, model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon)
-        # attack = white_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
-        # print(attack)
-        obs = attack + obs
-        action, _state = model.predict(obs, deterministic=True)
+        # attack = black_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
+        obs, info = env.reset()
+        while True:
+            attack = black_attack(env, obs, model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon)
+            # attack = white_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
+            # print(attack)
+            obs = attack + obs
+            action, _state = model.predict(obs, deterministic=True)
 
 
-        obs, reward, done, trun, info = env.step(action)
-        # print(obs[0:12])
-        if done or trun:
+            obs, reward, done, trun, info = env.step(action)
+            # print(obs[0:12])
+            if done or trun:
 
-            epoch +=1
-            goal_dist = 3 - 3 * max(obs[12:28])
-            obs_dist = 3 - 3 * max(obs[28:44])
-            if goal_dist < 0.4:
-                reach += 1
-            elif obs_dist < 0.2:
-                violate += 1
-            # obs, info = env.reset()
+                epoch +=1
+                goal_dist = 3 - 3 * max(obs[12:28])
+                obs_dist = 3 - 3 * max(obs[28:44])
+                if goal_dist < 0.4:
+                    reach += 1
+                elif obs_dist < 0.2:
+                    violate += 1
+                # obs, info = env.reset()
+                break
+        if epoch >= 100:
             break
-    if epoch >= 100:
-        break
-print(f'black attack violation:{violate}, reach:{ reach}')
+    print(f'black attack violation:{violate}, reach:{ reach}')
 # env.close()
 #
-epoch = 0
-reach = 0
-violate = 0
-while True:
-    # attack = black_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
-    obs, info = env.reset()
+def gradient(env,  model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon):
+    epoch = 0
+    reach = 0
+    violate = 0
     while True:
-        attack = Gradient_attack(env, obs, model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon, dim=44)
-        # attack = white_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
-        # print(attack)
-        obs = attack
-        action, _state = model.predict(obs, deterministic=True)
+        # attack = black_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
+        obs, info = env.reset()
+        while True:
+            attack = Gradient_attack(env, obs, model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon, dim=44)
+            # attack = white_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
+            # print(attack)
+            print(attack - obs)
+            obs = attack
+
+            action, _state = model.predict(obs, deterministic=True)
 
 
-        obs, reward, done, trun, info = env.step(action)
-        # print(obs[0:12])
-        if done or trun:
+            obs, reward, done, trun, info = env.step(action)
+            # print(obs[0:12])
+            if done or trun:
 
-            epoch +=1
-            goal_dist = 3 - 3 * max(obs[12:28])
-            obs_dist = 3 - 3 * max(obs[28:44])
-            if goal_dist < 0.4:
-                reach += 1
-            elif obs_dist < 0.2:
-                violate += 1
-            # obs, info = env.reset()
+                epoch +=1
+                goal_dist = 3 - 3 * max(obs[12:28])
+                obs_dist = 3 - 3 * max(obs[28:44])
+                if goal_dist < 0.4:
+                    reach += 1
+                elif obs_dist < 0.2:
+                    violate += 1
+                # obs, info = env.reset()
+                break
+        if epoch >= 100:
             break
-    if epoch >= 100:
-        break
-print(f'Gradient attack violation:{violate}, reach:{ reach}')
+    print(f'Gradient attack violation:{violate}, reach:{ reach}')
+
+
+## grey box: without contorl policy
+def grey_s(env,  model, surro_model, adv_model, epsilon):
+    epoch = 0
+    reach = 0
+    violate = 0
+    while True:
+        obs, info = env.reset()
+        while True:
+            attack = white_attack(env, obs, model=surro_model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon)
+            # print(attack)
+            obs = attack + obs
+            action, _state = model.predict(obs, deterministic=True)
+
+
+            obs, reward, done, trun, info = env.step(action)
+            # print(obs[0:12])
+            if done or trun:
+
+                epoch +=1
+                goal_dist = 3 - 3 * max(obs[12:28])
+                obs_dist = 3 - 3 * max(obs[28:44])
+                if goal_dist < 0.4:
+                    reach += 1
+                elif obs_dist < 0.2:
+                    violate += 1
+                # obs, info = env.reset()
+                break
+        if epoch >= 100:
+            break
+    print(f'Grey box without control policy violation:{violate}, reach:{ reach}')
+
+## grey box: without sys
+def grey_c(env, obs, model, surro_model, adv_model=adv_model, epsilon=epsilon, total_epoch=100):
+    epoch = 0
+    reach = 0
+    violate = 0
+    while True:
+        obs, info = env.reset()
+        while True:
+            attack = black_attack(env, obs, model=model, surro_model=model, adv_model=adv_model, epsilon=epsilon)
+            # print(attack)
+            obs = attack + obs
+            action, _state = model.predict(obs, deterministic=True)
+
+
+            obs, reward, done, trun, info = env.step(action)
+            # print(obs[0:12])
+            if done or trun:
+
+                epoch +=1
+                goal_dist = 3 - 3 * max(obs[12:28])
+                obs_dist = 3 - 3 * max(obs[28:44])
+                if goal_dist < 0.4:
+                    reach += 1
+                elif obs_dist < 0.2:
+                    violate += 1
+                # obs, info = env.reset()
+                break
+        if epoch >= total_epoch:
+            break
+    print(f'Grey box without sys violation:{violate}, reach:{ reach}')
+
+total_epoch = 100
+env = SafetyPointGoal1(render_mode=None)
+# gradient(env=env,  model=model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon)
+black(env=env,  model=model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon)
+white(env=env,  model=model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon)

@@ -55,13 +55,14 @@ class SafetyCarCircle(gymnasium.Env):
         velocity = np.sqrt(u ** 2 + v ** 2)
         # print(velocity)
         # velocity = (-u * y + v * x)
-        goal_reward = velocity - 5
-        wall_reward = (1.12 - x) * 20
-        circle_reward = (1.49 - radius) * 20
+        # print(velocity)
+        goal_reward = velocity - 4
+        wall_reward = (1.12 - x) * 10
+        circle_reward = min(1.49 - radius, radius - 1.2) * 10
         self.reward_cache.append(goal_reward)
         self.avoid_reward_cache.append(min(wall_reward, circle_reward))
 
-        if self.steps < 10:
+        if self.steps < 5000:
             reach_reward = max(self.reward_cache)
         else:
             reach_reward = max(self.reward_cache[-10:])
@@ -71,6 +72,8 @@ class SafetyCarCircle(gymnasium.Env):
             avoid_reward = min(self.avoid_reward_cache[-10:])
 
         final_reward = min(reach_reward, avoid_reward)
+        if velocity > 4:
+            final_reward = 5
         if info['cost'] != 0:
             done = True
             # self.reset()

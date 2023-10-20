@@ -1,13 +1,16 @@
 from customEnv.env import SafetyPointGoal1
 from stable_baselines3 import PPO
-from baseline import FGSM
-env = SafetyPointGoal1()
+# from baseline import FGSM
+env = SafetyPointGoal1(render_mode='human')
 model = PPO.load('train/model/SafetyPointGoal1-PPO-7.zip', env=env)
 # adv_model = PPO.load('train/SafetyPointGoal1-PPO-5.zip', env=env)
 epoch = 0
 reach = 0
 violate = 0
 for i in range(5):
+    epoch = 0
+    reach = 0
+    violate = 0
     while True:
         # attack = black_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
         obs, info = env.reset()

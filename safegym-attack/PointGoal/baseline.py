@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import torch
 from scipy.stats import beta
@@ -6,7 +8,7 @@ def Gradient_attack(env, state, model, surro_model, adv_model, epsilon, dim):
     _action = model.predict(state)[0]
     _state = state
     action = model.predict(state)[0]
-    state_range = _state / np.linalg.norm(_state) * epsilon * 44
+    state_range = _state / np.linalg.norm(_state) * epsilon * math.sqrt(44)
 
     for i in range(10):
         state = torch.tensor(state)
@@ -21,7 +23,7 @@ def Gradient_attack(env, state, model, surro_model, adv_model, epsilon, dim):
 
         state = state - grad_dir
 
-        state_range = grad / np.linalg.norm(grad) * epsilon * 44
+        state_range = grad / np.linalg.norm(grad) * epsilon * math.sqrt(44)
         state = torch.clip(state, torch.from_numpy(_state) - state_range, torch.from_numpy(_state) + state_range)
 
         Q_adv = model.policy.forward(state.view(1, -1))[1]
