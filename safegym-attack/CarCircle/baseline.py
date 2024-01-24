@@ -4,9 +4,6 @@ import numpy as np
 import torch
 from scipy.optimize import Bounds, NonlinearConstraint
 from scipy.stats import beta
-from torch.distributions import MultivariateNormal
-from torch.distributions.kl import kl_divergence
-
 def Gradient_attack(env, state, model, surro_model, adv_model, epsilon):
     # print(type(state))
     _action = surro_model.predict(state)[0]
@@ -48,33 +45,40 @@ def Gradient_attack(env, state, model, surro_model, adv_model, epsilon):
         # print("no attack")
         return np.zeros_like(_state)
 
+    # print(grad)
+    # sign_data_grad = data_grad.sign()
+    # perturbed_image = image + epsilon * sign_data_grad
+    # # Adding clipping to maintain [0,1] range
+    # perturbed_image = torch.clamp(perturbed_image, 0, 1)
+    # # Return the perturbed image
+    # return perturbed_image
 import torch.distributions.kl as kl
 from scipy.optimize import minimize, Bounds, LinearConstraint, NonlinearConstraint, root
 
 def MAD(env, obs, model, surro_model, adv_model, epsilon):
-    action = model.predict(obs, deterministic=True)[0]
-    # print(action)
-    effect = None
-    attack = None
-    _action = action
-    _state = obs
-    state_range = np.array([epsilon])
+        action = model.predict(obs, deterministic=True)[0]
+        # print(action)
+        effect = None
+        attack = None
+        _action = action
+        _state = obs
+        state_range = np.array([epsilon])
 
-    def fun(x):
-        u = model.predict(x+_state, deterministic=True)[0]
-        result = np.sum(np.power(action - u,2)) * -1
-        return result
+        def fun(x):
+            u = model.predict(x + _state, deterministic=True)[0]
+            result = np.sum(np.power(action - u, 2)) * (-1)
+            return result
 
-    x_start = np.zeros_like(_state)
-    lim = np.zeros_like(_state) + epsilon
+        x_start = np.zeros_like(_state)
+        lim = np.zeros_like(_state) + epsilon
 
-    bounds = Bounds(-lim, lim)
+        bounds = Bounds(-lim, lim)
 
+        result = minimize(fun, x_start, method='trust-constr', bounds=bounds, tol=0.1)
+        # print(result.x)
 
-    result = minimize(fun, x_start, method='trust-constr', bounds=bounds)
-    # print(result.x)
-    op_action = (result.x)
-    return op_action
+        op_action = (result.x)
+        return op_action
 
 def laa_attack(env, state, model, surro_model, adv_model,baseline_model, epsilon):
     action = surro_model.predict(state)[0]

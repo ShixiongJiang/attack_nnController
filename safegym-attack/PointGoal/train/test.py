@@ -7,6 +7,8 @@ import safety_gymnasium
 import numpy as np
 import math
 from copy import deepcopy
+
+import torch
 from stable_baselines3 import A2C, PPO
 # from gym import spaces
 
@@ -109,8 +111,10 @@ object = env.env.unwrapped._get_task()
 # print(object._build_world_config(config))
 # # print(dir(env.env))
 # print(dir(env.env))
-model = PPO.load('model/SafetyPointGoal1-PPO-7.zip', env=env)
-# model = PPO.load('SafetyPointGoal1-PPO-1.zip', env=env)
+
+model = PPO.load('model/SafetyPointGoal1-PPO-6.zip', env=env)
+
+# model = A2C.load('model/surro_SafetyPointGoal1-A2C-1.zip', env=env)
 # env = model.get_env()
 obs, info = env.reset()
 # env.render("human")
@@ -118,8 +122,13 @@ j = 0
 reach = 0
 y = []
 u = []
+
 for i in range(1000000):
     action, _state = model.predict(obs, deterministic=True)
+    # dis = model.policy.get_distribution(torch.from_numpy(obs).view(1, -1))
+    # # probs = dis.distribution.probs
+    # # probs_np = probs.detach().numpy()
+    # print(type(dis.distribution))
 
     # action = [0.03, -1]
     # action =

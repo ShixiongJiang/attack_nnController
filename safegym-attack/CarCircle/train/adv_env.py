@@ -1,38 +1,32 @@
-import random
-
 import gymnasium
 import safety_gymnasium
-# from gym.spaces import Discrete, Dict, Box
 
 import numpy as np
 import math
 from copy import deepcopy
-from stable_baselines3 import A2C, PPO
-# from gym import spaces
 
-class SafetyPointGoal1(gymnasium.Env):
-    def __init__(self, config=None, seed=None, render_mode=None):
+
+class adv_SafetyCarCircle(gymnasium.Env):
+    def __init__(self, render_mode='None'):
         # super(SafetyPointGoal1, self).__init__()
-        self.hazard_dist = None
-        self.goal_dist = None
-        env_id = 'SafetyPointGoalHazard0-v0'
-        # env_id = 'SafetyPointGoal1-v0'
+        env_id = 'SafetyCarCircle1-v0'
         safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode=render_mode)
         self.env = safety_gymnasium.wrappers.SafetyGymnasium2Gymnasium(safety_gymnasium_env)
-        # This default action sapce is wrong
         self.action_space = self.env.action_space
-        # print(type(self.action_space))
-        self.action_space = gymnasium.spaces.Box(low=np.array([-1, -1]), high=np.array([1, 1]), dtype=np.float32)
-        # print(type(self.action_space))
         self.observation_space = self.env.observation_space
+        # self.env.observation_space
+        low = self.observation_space.low.astype('float32')
+        high = self.observation_space.high.astype('float32')
+
+        self.action_space = gymnasium.spaces.Box(low=np.array([-1, -1]), high=np.array([1, 1]), dtype=np.float32)
         self.radius = 0.2
         self.reward_cache = []
         self.avoid_reward_cache = []
+
         self.final_reward_cache = []
         self.steps = 0
-        self.done = False
-        self.seed = seed
 
+        self.agent = self.env.unwrapped._agent()
 
     # def _get_obs(self):
     #     return {"agent": self._agent_location, "target": self._target_location}
@@ -40,26 +34,34 @@ class SafetyPointGoal1(gymnasium.Env):
     # def _get_info(self):
     #     return {"distance": np.linalg.norm(self._agent_location - self._target_location, ord=1)}
     def reset(self, seed=None, options=None):
-
         super().reset(seed=seed)
-        obs, info = self.env.reset(seed=self.seed)
-        self.steps = 0
-        self.done = True
+        obs, info = self.env.reset()
+
         return obs, info
 
     def step(self, action):
         self.steps += 1
         action[0] = action[0] / 20
+        action[1] = action[1] / 20
+        # print(action)
         obs, rew, done,truncated, info = self.env.step(action)
-        goal_dist = 3 - 3 *max(obs[12:28])
-        hazard_dist = 3 - 3 *max(obs[28:44])
-        self.goal_dist = goal_dist
-        self.hazard_dist = hazard_dist
-        # print(hazard_dist)
-        reward = self.radius - goal_dist
-        obs_reward = hazard_dist - self.radius
-        self.reward_cache.append(reward)
-        self.avoid_reward_cache.append(obs_reward)
+        final_reward = 0
+        x = self.agent.pos[0]
+        y = self.agent.pos[1]
+
+        radius = np.sqrt(x ** 2 + y ** 2)
+        vel = self.agent.vel
+        u, v, _ = vel
+        # velocity = np.sqrt(u ** 2 + v ** 2)
+        # print(velocity)
+        velocity = (-u * y + v * x)
+        # print(velocity)
+        goal_reward = velocity - 4
+        wall_reward = (1.12 - x) * 5
+        circle_reward = min(1.49 - radius, radius - 1.2) * 5
+        self.reward_cache.append(goal_reward)
+        self.avoid_reward_cache.append(min(wall_reward, circle_reward))
+
         if self.steps < 10:
             reach_reward = max(self.reward_cache)
         else:
@@ -68,18 +70,29 @@ class SafetyPointGoal1(gymnasium.Env):
             avoid_reward = min(self.avoid_reward_cache)
         else:
             avoid_reward = min(self.avoid_reward_cache[-10:])
-        final_reward = min(reach_reward, avoid_reward)
-        self.final_reward_cache.append(final_reward)
-        if goal_dist < 0.4:
+
+        final_reward = - wall_reward
+        # if velocity > 4:
+        #     final_reward = 5
+        if info['cost'] != 0:
             done = True
-            final_reward = 10
-            self.reset()
-        if hazard_dist < 0.2:
-            done = True
-            self.reset()
-        if truncated:
-            done = True
-            self.reset()
+            # self.reset()
+            final_reward = 100
+
+        # if 1.50 - radius < 0:
+        #     final_reward = -10
+            # self.reset()
+        # self.final_reward_cache.append(final_reward)
+        # if goal_dist < 0.4:
+        #     done = True
+        #     final_reward = 10
+        #     self.reset()
+        # if hazard_dist < 0.2:
+        #     done = True
+        #     final_reward = -1000
+        #     self.reset()
+        # if truncated:
+        #     final_reward = 5
         return obs, final_reward, done,truncated, info
 
     def set_state(self, state):
@@ -95,4 +108,3 @@ class SafetyPointGoal1(gymnasium.Env):
 
     def close(self):
         self.env.close()
-

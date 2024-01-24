@@ -98,22 +98,24 @@ class SafetyPointGoal1(gymnasium.Env):
 #     'SafetyPointGoal1-v0')  # step returns (next_obervation, reward, cost, terminated, truncated, info)
 # env = gymnasium.make('SafetyPointGoal1Gymnasium-v0',
 #                      render_mode='human')  # step returns (next_obervation, reward, terminated, truncated, info)
-from stable_baselines3 import A2C, SAC, PPO
+from stable_baselines3 import A2C, SAC, PPO, DDPG
 import torch as th
 env = SafetyPointGoal1()
 policy_kwargs = dict(activation_fn=th.nn.ReLU,
                      net_arch=dict(pi=[64, 64], vf=[64, 64]))
 # model = PPO("MlpPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
-model = PPO.load('model/SafetyPointGoal1-PPO-7.zip', env=env)
+# model = PPO.load('model/SafetyPointGoal1-PPO-7.zip', env=env)
+model = SAC("MlpPolicy", env, verbose=1)
+# model = PPO.load('model/surro_SafetyPointGoal1-PPO-6.zip', env=env)
 # print(model.policy.net_arch)
 model.set_env(env)
-model.learn(total_timesteps=1000000)
+model.learn(total_timesteps=500000)
 
 # vec_env = model.get_env()
 # obs = env.reset()
 # env.render("human")
 # print(vec_env.unwrapped.unwrapped.st)
-model.save('model/SafetyPointGoal1-PPO-7.zip')
+model.save('model/surro_SafetyPointGoal1-SAC-1.zip')
 # for i in range(5000):
 #     action, _state = model.predict(obs, deterministic=True)
 #     obs, reward, done, truncated, info = env.step(action)

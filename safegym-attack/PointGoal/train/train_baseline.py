@@ -58,7 +58,7 @@ class AdvSafetyPointGoal1(gymnasium.Env):
         else:
             avoid_reward = min(self.avoid_reward_cache[-10:])
         # final_reward = min(reach_reward, avoid_reward)
-        final_reward = avoid_reward
+        final_reward = - rew
         self.final_reward_cache.append(final_reward)
         if goal_dist < 0.4:
             done = True
@@ -89,17 +89,10 @@ from stable_baselines3 import A2C, SAC, PPO
 
 env = AdvSafetyPointGoal1()
 
-model = PPO("MlpPolicy", env, verbose=1)
+model = PPO("MlpPolicy", env, verbose=0)
 # model = PPO.load('Adv_SafetyPointGoal1-PPO.zip', env=env)
 model.learn(total_timesteps=1000000)
 
-# vec_env = model.get_env()
-# obs = env.reset()
-# env.render("human")
-# print(vec_env.unwrapped.unwrapped.st)
-model.save('model/Adv_SafetyPointGoal1-PPO-2.zip')
-# for i in range(5000):
-#     action, _state = model.predict(obs, deterministic=True)
-#     obs, reward, done, truncated, info = env.step(action)
+model.save('model/baseline_SafetyPointGoal1-PPO.zip')
 
 

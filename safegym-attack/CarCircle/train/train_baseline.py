@@ -6,7 +6,7 @@ import math
 from copy import deepcopy
 
 
-class SafetyCarCircle(gymnasium.Env):
+class baseline_Adv_SafetyCarCircle(gymnasium.Env):
     def __init__(self, render_mode='None'):
         # super(SafetyPointGoal1, self).__init__()
         env_id = 'SafetyCarCircle1-v0'
@@ -71,17 +71,16 @@ class SafetyCarCircle(gymnasium.Env):
         else:
             avoid_reward = min(self.avoid_reward_cache[-10:])
 
-        final_reward = rew
+        final_reward = -rew
         # if velocity > 4:
         #     final_reward = 5
-        if info['cost'] != 0:
-            done = True
-            # self.reset()
-            final_reward = -10
-
-        if 1.50 - radius < 0:
-            final_reward = -10
-            done = True
+        # if info['cost'] != 0:
+        #     done = True
+        #     # self.reset()
+        #     final_reward = -10
+        #
+        # if 1.50 - radius < 0:
+        #     final_reward = -10
             # self.reset()
         # self.final_reward_cache.append(final_reward)
         # if goal_dist < 0.4:
@@ -109,3 +108,14 @@ class SafetyCarCircle(gymnasium.Env):
 
     def close(self):
         self.env.close()
+
+
+from stable_baselines3 import A2C, SAC, PPO
+
+env = baseline_Adv_SafetyCarCircle()
+
+model = PPO("MlpPolicy", env, verbose=0)
+# model = PPO.load('Adv_SafetyPointGoal1-PPO.zip', env=env)
+model.learn(total_timesteps=1000000)
+
+model.save('model/baseline_SafetyCarCircle1-PPO.zip')
