@@ -5,17 +5,17 @@ black_ave = []
 grey_c_ave = []
 grey_s_ave = []
 
-with open(r'white_dist.txt', 'r') as fp:
+with open(r'data/white_dist.txt', 'r') as fp:
     white_ave = [float(x)  for x in fp.read().split()]
     # print(white_ave)
 
-with open(r'black_dist.txt', 'r') as fp:
+with open(r'data/black_dist.txt', 'r') as fp:
     black_ave = [float(x)+0.1 for x in fp.read().split()]
 
-with open(r'grey_c_dist.txt', 'r') as fp:
+with open(r'data/grey_c_dist.txt', 'r') as fp:
     grey_c_ave = [float(x)-0.13 for x in fp.read().split()]
 
-with open(r'grey_s_dist.txt', 'r') as fp:
+with open(r'data/grey_s_dist.txt', 'r') as fp:
     grey_s_ave = [float(x) for x in fp.read().split()]
 
 fig, ax = plt.subplots()

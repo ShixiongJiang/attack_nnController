@@ -9,28 +9,28 @@ import statistics
 # print((rho_list[0]))
 # print(rho_list[1])
 
-with open(r'rho.txt', 'r') as fp:
+with open(r'data/rho.txt', 'r') as fp:
     white_rho_ave = [float(x)+2  for x in fp.read().split()]
     # print(white_ave)
 
-with open(r'pertub_rho.txt', 'r') as fp:
+with open(r'data/pertub_rho.txt', 'r') as fp:
     white_pertub_rho_ave = [float(x) + 2.01 for x in fp.read().split()]
 
-with open(r'grey_c_rho.txt', 'r') as fp:
+with open(r'data/grey_c_rho.txt', 'r') as fp:
     grey_c_ave = [float(x) + 2 for x in fp.read().split()]
     # print(white_ave)
-with open(r'grey_c_pertub_rho.txt', 'r') as fp:
+with open(r'data/grey_c_pertub_rho.txt', 'r') as fp:
     grey_c_pertub_rho_ave = [float(x) + 2.015 for x in fp.read().split()]
 
-with open(r'grey_s_rho.txt', 'r') as fp:
+with open(r'data/grey_s_rho.txt', 'r') as fp:
     grey_s_rho_ave = [float(x) + 2 for x in fp.read().split()]
     # print(white_ave)
-with open(r'grey_s_pertub_rho.txt', 'r') as fp:
+with open(r'data/grey_s_pertub_rho.txt', 'r') as fp:
     grey_s_pertub_rho_ave = [float(x)+2.01 for x in fp.read().split()]
-with open(r'black_rho.txt', 'r') as fp:
+with open(r'data/black_rho.txt', 'r') as fp:
     black_rho_ave = [float(x)+ 2 for x in fp.read().split()]
     # print(white_ave)
-with open(r'black_pertub_rho.txt', 'r') as fp:
+with open(r'data/black_pertub_rho.txt', 'r') as fp:
     black_pertub_rho_ave = [float(x)+2.01 for x in fp.read().split()]
 fig, ax = plt.subplots()
 fig.set_figheight(3.8)

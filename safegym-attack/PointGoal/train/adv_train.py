@@ -90,7 +90,7 @@ from stable_baselines3 import A2C, SAC, PPO
 env = AdvSafetyPointGoal1()
 
 model = PPO("MlpPolicy", env, verbose=1)
-# model = PPO.load('Adv_SafetyPointGoal1-PPO.zip', env=env)
+# model = PPO.load('adv_PPO_PointGoal.zip', env=env)
 model.learn(total_timesteps=1000000)
 
 # vec_env = model.get_env()

@@ -525,7 +525,7 @@ for epsilon in  [ 0.01, 0.05, 0.10, 0.15]:
 # white attack violation:45, reach:205
 # grey_c attack violation:40, reach:210
 # grey_s attack violation:32, reach:218
-# C:\Users\sjiang5\PycharmProjects\attack_nnController\safegym-attack\CarCircle\baseline.py:17: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+# C:\Users\sjiang5\PycharmProjects\attack_nnController\safegym-attack\CarCircle\baseline_attack.py:17: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
 #   state = torch.tensor(state)
 # GA violation:0, reach:250
 # ++++++++++++

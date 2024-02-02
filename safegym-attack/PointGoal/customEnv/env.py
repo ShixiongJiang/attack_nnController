@@ -49,7 +49,7 @@ class SafetyPointGoal1(gymnasium.Env):
 
     def step(self, action):
         self.steps += 1
-        action[0] = action[0] / 20
+        # action[0] = action[0] / 20
         obs, rew, done,truncated, info = self.env.step(action)
         goal_dist = 3 - 3 *max(obs[12:28])
         hazard_dist = 3 - 3 *max(obs[28:44])

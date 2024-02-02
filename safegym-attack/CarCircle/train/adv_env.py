@@ -28,11 +28,6 @@ class adv_SafetyCarCircle(gymnasium.Env):
 
         self.agent = self.env.unwrapped._agent()
 
-    # def _get_obs(self):
-    #     return {"agent": self._agent_location, "target": self._target_location}
-    #
-    # def _get_info(self):
-    #     return {"distance": np.linalg.norm(self._agent_location - self._target_location, ord=1)}
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         obs, info = self.env.reset()
@@ -72,27 +67,11 @@ class adv_SafetyCarCircle(gymnasium.Env):
             avoid_reward = min(self.avoid_reward_cache[-10:])
 
         final_reward = - wall_reward
-        # if velocity > 4:
-        #     final_reward = 5
+
         if info['cost'] != 0:
             done = True
             # self.reset()
             final_reward = 100
-
-        # if 1.50 - radius < 0:
-        #     final_reward = -10
-            # self.reset()
-        # self.final_reward_cache.append(final_reward)
-        # if goal_dist < 0.4:
-        #     done = True
-        #     final_reward = 10
-        #     self.reset()
-        # if hazard_dist < 0.2:
-        #     done = True
-        #     final_reward = -1000
-        #     self.reset()
-        # if truncated:
-        #     final_reward = 5
         return obs, final_reward, done,truncated, info
 
     def set_state(self, state):

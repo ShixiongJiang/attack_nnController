@@ -551,20 +551,20 @@ plt.boxplot(data)
 plt.show()
 
 
-with open(r'white_dist.txt', 'w') as fp:
+with open(r'data/white_dist.txt', 'w') as fp:
     for item in white_ave:
         # write each item on a new line
         fp.write("%s\n" % item)
-with open(r'black_dist.txt', 'w') as fp:
+with open(r'data/black_dist.txt', 'w') as fp:
     for item in black_ave:
         # write each item on a new line
         fp.write("%s\n" % item)
 
-with open(r'grey_c_dist.txt', 'w') as fp:
+with open(r'data/grey_c_dist.txt', 'w') as fp:
     for item in grey_c_ave:
         # write each item on a new line
         fp.write("%s\n" % item)
-with open(r'grey_s_dist.txt', 'w') as fp:
+with open(r'data/grey_s_dist.txt', 'w') as fp:
     for item in grey_s_ave:
         # write each item on a new line
         fp.write("%s\n" % item)

@@ -10,7 +10,7 @@ import torch as th
 from customerEnv import SafetyCarCircle
 env = SafetyCarCircle()
 policy_kwargs = dict(activation_fn=th.nn.ReLU,
-                     net_arch=dict(pi=[128, 128, 128], qf=[64, 64]))
+                     net_arch=dict(pi=[64, 64], qf=[64, 64]))
 # model = PPO("MlpPolicy", env, verbose=0, policy_kwargs=policy_kwargs)
 model = PPO.load('model/SafetyCarCirclePPO-1.zip', env=env)
 # model = SAC("MlpPolicy", env, verbose=0, policy_kwargs=policy_kwargs)# print(model.policy.net_arch)

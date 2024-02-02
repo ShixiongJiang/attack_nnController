@@ -52,10 +52,8 @@ class SafetyCarCircle(gymnasium.Env):
         radius = np.sqrt(x ** 2 + y ** 2)
         vel = self.agent.vel
         u, v, _ = vel
-        # velocity = np.sqrt(u ** 2 + v ** 2)
-        # print(velocity)
+
         velocity = (-u * y + v * x)
-        # print(velocity)
         goal_reward = velocity - 4
         wall_reward = (1.12 - x) * 5
         circle_reward = min(1.49 - radius, radius - 1.2) * 5
@@ -71,29 +69,14 @@ class SafetyCarCircle(gymnasium.Env):
         else:
             avoid_reward = min(self.avoid_reward_cache[-10:])
 
-        final_reward = rew
-        # if velocity > 4:
-        #     final_reward = 5
+        final_reward = min(reach_reward, avoid_reward)
         if info['cost'] != 0:
             done = True
-            # self.reset()
             final_reward = -10
 
         if 1.50 - radius < 0:
             final_reward = -10
             done = True
-            # self.reset()
-        # self.final_reward_cache.append(final_reward)
-        # if goal_dist < 0.4:
-        #     done = True
-        #     final_reward = 10
-        #     self.reset()
-        # if hazard_dist < 0.2:
-        #     done = True
-        #     final_reward = -1000
-        #     self.reset()
-        # if truncated:
-        #     final_reward = 5
         return obs, final_reward, done,truncated, info
 
     def set_state(self, state):
