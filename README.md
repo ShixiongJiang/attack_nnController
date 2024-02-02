@@ -1,9 +1,9 @@
 ICCPS'24 Vulnerability Analysis for Safe Reinforcement Learning in Cyber-Physical System
 
 This repo contains the source code of the ICCPS 2024 project.
-The code is tested under Ubuntu 22.04, required packages and its version can be found at requirements.txt \\
+The code is tested under Ubuntu 22.04, required packages and its version can be found at requirements.txt \
 
-To simply reproduce the results in the paper, you can run the main.py file.
+To simply reproduce the results in the paper, you can run the main.py file. \
 The pretrained models can be find in models folder.
 To customize this work to your problem, it can be done by follwing:
 If you are trying to apply this work to a new system, you can build a new folder just like the benchmarks in CPS-benchmark folder.
