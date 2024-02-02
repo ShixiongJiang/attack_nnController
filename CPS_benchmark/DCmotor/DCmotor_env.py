@@ -451,7 +451,7 @@ class laa_DCEnv(gym.Env):
         # calculate euclidean distance and update reward cache
         dist = np.linalg.norm(self.xmeasure - self.center)
         state = self.xmeasure
-        obs_dist = min(np.linalg.norm(state[:3] - env.obstacle[0]), np.linalg.norm(state[:3] - env.obstacle[1]))
+        obs_dist = min(np.linalg.norm(state[:3] - self.obstacle[0]), np.linalg.norm(state[:3] - self.obstacle[1]))
         reward = self.target_norm_radius - dist
         obs_reward = obs_dist - self.safe_norm_radius
 

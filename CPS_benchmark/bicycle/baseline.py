@@ -1,3 +1,5 @@
+import math
+
 import torch
 from scipy.optimize import Bounds, minimize
 
@@ -102,7 +104,7 @@ def gradient(env, model, surro_model, adv_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'gradient attack violation:{number_violate}, reach:{num_reached}')
+    print(f'gradient attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
     return dist_list
 
 
@@ -143,7 +145,7 @@ def mad(env, model, surro_model, adv_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'mad attack violation:{number_violate}, reach:{num_reached}')
+    print(f'mad attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
     return dist_list
 
 def laa(env, model, surro_model, adv_model,laa_model, epsilon, total_epoch=100):
@@ -182,5 +184,5 @@ def laa(env, model, surro_model, adv_model,laa_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'laa attack violation:{number_violate}, reach:{num_reached}')
+    print(f'laa attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
     return dist_list

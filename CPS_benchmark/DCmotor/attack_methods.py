@@ -20,12 +20,6 @@ def white_attack(env, state, model, surro_model, adv_model, epsilon):
     lim = [-10, 10]
 
     bounds = Bounds(lim[0], lim[1])
-
-    #     x_state = odeint(bicycle, state, ts, args=(action,))[-1]
-    #     non_linear_eq= lambda x: np.linalg.norm(odeint(bicycle, state, ts, args=(x,))[-1] - env.obstacle) -\
-    #                             np.linalg.norm(odeint(bicycle, state, ts, args=(action,))[-1] - env.obstacle)
-    #     non_linear_constr = NonlinearConstraint(non_linear_eq, 0.0, np.inf)
-    #     result = minimize(fun, x_start, method='trust-constr', bounds=bounds, constraints=non_linear_constr)
     result = minimize(fun, x_start, method='trust-constr', bounds=bounds)
     # print(result.x)
     op_action = (result.x)
@@ -179,7 +173,7 @@ def grey_c(env, model, surro_model, adv_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'grey_c attack violation:{number_violate}, reach:{num_reached}')
+    print(f'grey_c attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
     return grey_c_dist_list
 
 def white(env, model, surro_model, adv_model, epsilon, total_epoch=100):
@@ -220,7 +214,7 @@ def white(env, model, surro_model, adv_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'white attack violation:{number_violate}, reach:{num_reached}')
+    print(f'white attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
     return white_dist_list
 
 
@@ -261,7 +255,7 @@ def black(env, model, surro_model, adv_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'black attack violation:{number_violate}, reach:{num_reached}')
+    print(f'black attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
     return black_dist_list
 
 
@@ -303,5 +297,5 @@ def grey_s(env, model, surro_model, adv_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'grey_s attack violation:{number_violate}, reach:{num_reached}')
+    print(f'grey_s attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
     return grey_s_dist_list

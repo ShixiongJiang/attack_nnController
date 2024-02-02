@@ -172,7 +172,7 @@ def white(env, model, surro_model, adv_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'white attack violation:{number_violate}, reach:{num_reached}')
+    print(f'white attack violation:{number_violate}, reach:{num_reached}, violation prob:{violate / total_epoch}, reach prob:{reach / total_epoch}')
     return white_dist_list
 
 
@@ -213,7 +213,7 @@ def black(env, model, surro_model, adv_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'black attack violation:{number_violate}, reach:{num_reached}')
+    print(f'black attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
     return black_dist_list
 
 
@@ -255,7 +255,7 @@ def grey_s(env, model, surro_model, adv_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'grey_s attack violation:{number_violate}, reach:{num_reached}')
+    print(f'grey_s attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
     return grey_s_dist_list
 
 
@@ -298,5 +298,5 @@ def grey_c(env, model, surro_model, adv_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'grey_c attack violation:{number_violate}, reach:{num_reached}')
+    print(f'grey_c attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
     return grey_c_dist_list

@@ -49,7 +49,7 @@ class bicycleEnv(gym.Env):
         self.state = np.random.rand(4)*2-1.2
         self.horizon = np.arange(0, self.step_const+2, 1)*0.1
         self.target_norm_radius = 0.6
-        self.safe_norm_radius = 0.6
+        self.safe_norm_radius = 0.5
         self.max_reward_list = []
         self.avoid_reward_cache = []
         self.quality_list = []
@@ -144,8 +144,8 @@ class adv_bicycleEnv(gym.Env):
         self.final_reward_cache = [] # cache final reward
         self.state = np.random.rand(4)*2-1
         self.horizon = np.arange(0, self.step_const+2, 1)*0.1
-        self.target_norm_radius = 0.8
-        self.safe_norm_radius = 0.4
+        self.target_norm_radius = 0.6
+        self.safe_norm_radius = 0.5
         self.max_reward_list = []
         self.avoid_reward_cache = []
         self.quality_list = []
@@ -244,7 +244,7 @@ class laa_bicycleEnv(gym.Env):
         self.state = np.random.rand(4) * 2 - 2.2
         self.horizon = np.arange(0, self.step_const + 2, 1) * 0.1
         self.target_norm_radius = 0.6
-        self.safe_norm_radius = 0.4
+        self.safe_norm_radius = 0.5
         self.max_reward_list = []
         self.avoid_reward_cache = []
         self.quality_list = []

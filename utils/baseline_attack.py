@@ -25,7 +25,7 @@ def laa(env, model, surro_model, adv_model,laa_model, epsilon, total_epoch):
                 break
         if epoch >= total_epoch:
             break
-    print(f'laa attack violation:{violate}, reach:{reach}')
+    print(f'laa attack violation:{violate}, reach:{reach}, violation prob:{violate / total_epoch}, reach prob:{reach / total_epoch}')
 
 def mad(env,  model, surro_model, adv_model, epsilon,  total_epoch):
     epoch = 0
@@ -56,7 +56,7 @@ def mad(env,  model, surro_model, adv_model, epsilon,  total_epoch):
                 break
         if epoch >= total_epoch:
             break
-    print(f'mad attack violation:{violate}, reach:{ reach}')
+    print(f'mad attack violation:{violate}, reach:{ reach}, violation prob:{violate / total_epoch}, reach prob:{reach / total_epoch}')
 
 
 def gradient(env,  model, surro_model, adv_model, epsilon,  total_epoch):
@@ -89,4 +89,4 @@ def gradient(env,  model, surro_model, adv_model, epsilon,  total_epoch):
                 break
         if epoch >= total_epoch:
             break
-    print(f'Gradient attack violation:{violate}, reach:{ reach}')
+    print(f'Gradient attack violation:{violate}, reach:{ reach}, violation prob:{violate / total_epoch}, reach prob:{reach / total_epoch}')

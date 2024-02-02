@@ -55,27 +55,29 @@ from scipy.optimize import minimize, Bounds, LinearConstraint, NonlinearConstrai
 
 
 def MAD(env, obs, model, surro_model, adv_model, epsilon):
+    action = model.predict(obs, deterministic=True)[0]
+    # print(action)
+    effect = None
+    attack = None
+    _action = action
     _state = obs
     state_range = np.array([epsilon])
-    dis = model.policy.get_distribution(torch.from_numpy(obs).view(1, -1))
-    p = dis.distribution
 
-    # print(p.loc)
     def fun(x):
-        dis2 = model.policy.get_distribution(torch.from_numpy(obs + x).view(1, -1))
-        # print(dis2)
-        q = dis2.distribution
-        # print(q)
-        return -kl.kl_divergence(p, q).sum().detach().numpy()
+        u = model.predict(x + _state, deterministic=True)[0]
+        result = np.sum(np.power(action - u, 2)) * (-1)
+        return result
 
-    x_start = np.zeros_like(obs)
-    # non_linear_eq = lambda x: (np.max(np.abs(x))) - epsilon
-    bo = np.zeros_like(_state) + epsilon
-    bound = Bounds(-bo, bo)
-    result = minimize(fun, x_start, method='trust-constr', bounds=bound)
-    op_attack = (result.x)
-    # print(op_attack)
-    return op_attack
+    x_start = np.zeros_like(_state)
+    lim = np.zeros_like(_state) + epsilon
+
+    bounds = Bounds(-lim, lim)
+
+    result = minimize(fun, x_start, method='trust-constr', bounds=bounds, tol=0.1)
+    # print(result.x)
+
+    op_action = (result.x)
+    return op_action
 
 def mad(env, model, surro_model, adv_model, epsilon, total_epoch=100):
     epsilon = epsilon
@@ -110,7 +112,7 @@ def mad(env, model, surro_model, adv_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'mad attack violation:{number_violate}, reach:{num_reached}')
+    print(f'mad attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
     return dist_list
 
 def laa(env, model, surro_model, adv_model, laa_model, epsilon, total_epoch=100):
@@ -150,7 +152,7 @@ def laa(env, model, surro_model, adv_model, laa_model, epsilon, total_epoch=100)
                 break
             if done:
                 env.reset()
-    print(f'laa attack violation:{number_violate}, reach:{num_reached}')
+    print(f'laa attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
 
 
 
@@ -186,7 +188,7 @@ def gradient(env, model, surro_model, adv_model, epsilon, total_epoch=100):
                 break
             if done:
                 env.reset()
-    print(f'GA attack violation:{number_violate}, reach:{num_reached}')
+    print(f'GA attack violation:{number_violate}, reach:{num_reached}, violation prob:{number_violate / total_epoch}, reach prob:{num_reached / total_epoch}')
 
 
 

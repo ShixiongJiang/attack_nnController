@@ -11,16 +11,16 @@ laa_env = LaaPointGoal1()
 
 model = PPO("MlpPolicy", env, verbose=0)
 model.learn(total_timesteps=10000000, progress_bar=False)
-model.save('./model/PPO_PointGoal.zip')
+model.save('model/PPO_PointGoal.zip')
 
 model = SAC("MlpPolicy", env, verbose=0)
 model.learn(total_timesteps=1000000, progress_bar=False)
-model.save('./model/surro_SAC_PointGoal.zip')
+model.save('model/surro_SAC_PointGoal.zip')
 
 model = PPO("MlpPolicy", adv_env, verbose=0)
 model.learn(total_timesteps=1000000, progress_bar=False)
-model.save('./model/adv_PPO_PointGoal.zip')
+model.save('model/adv_PPO_PointGoal.zip')
 
 model = PPO("MlpPolicy", laa_env, verbose=0)
 model.learn(total_timesteps=1000000, progress_bar=False)
-model.save('./model/laa_PPO_PointGoal.zip')
+model.save('model/laa_PPO_PointGoal.zip')

@@ -3,9 +3,7 @@ import math
 import numpy as np
 
 import torch
-import torch.nn as nn
-from pointgoal_env import PointGoal1
-from stable_baselines3 import PPO, SAC
+
 
 
 def black_attack(env, state, model, surro_model, adv_model, epsilon):
@@ -190,20 +188,20 @@ def white(env,  model, surro_model, adv_model, epsilon, total_epoch):
             if done or trun:
                 rho_list.append(rho)
                 perturb_rho_list.append(perturb_rho)
+                dis_list.append(dis)
                 epoch +=1
                 goal_dist = 3 - 3 * max(obs[12:28])
                 obs_dist = 3 - 3 * max(obs[28:44])
                 if goal_dist < 0.4:
                     reach +=1
                 elif obs_dist < 0.2:
-                    dis_list.append(dis)
                     violate += 1
                 break
         if epoch >= total_epoch:
             # print(rho)
             # print(perturb_rho)
             break
-    print(f'white attack violation:{violate}, reach:{ reach}')
+    print(f'white attack violation:{violate}, reach:{ reach}, violation prob:{violate / total_epoch}, reach prob:{reach / total_epoch}')
     return rho_list, perturb_rho_list, dis_list
 # env.close()
 # env = SafetyPointGoal1(render_mode='rgb_array')
@@ -214,16 +212,19 @@ def black(env,  model, surro_model, adv_model, epsilon, total_epoch):
     reach = 0
     violate = 0
     rho_list = []
+    dis_list = []
     perturb_rho_list = []
     while True:
         # attack = black_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
         rho = []
         perturb_rho = []
         obs, info = env.reset()
+        dis = []
         while True:
             goal_dist = 3 - 3 * max(obs[12:28])
             obs_dist = 3 - 3 * max(obs[28:44])
             rho.append(-goal_dist)
+            dis.append(obs_dist)
             attack = black_attack(env, obs, model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon)
             # print(attack)
             obs = attack + obs
@@ -237,19 +238,19 @@ def black(env,  model, surro_model, adv_model, epsilon, total_epoch):
             if done or trun:
                 rho_list.append(rho)
                 perturb_rho_list.append(perturb_rho)
+                dis_list.append(dis)
                 epoch += 1
                 goal_dist = 3 - 3 * max(obs[12:28])
                 obs_dist = 3 - 3 * max(obs[28:44])
                 if goal_dist < 0.4:
                     reach += 1
                 elif obs_dist < 0.2:
-                    # dis_list.append(dis)
                     violate += 1
                 break
         if epoch >= total_epoch:
             break
-    print(f'black attack violation:{violate}, reach:{ reach}')
-    return rho_list, perturb_rho_list
+    print(f'black attack violation:{violate}, reach:{ reach}, violation prob:{violate / total_epoch}, reach prob:{reach / total_epoch}')
+    return rho_list, perturb_rho_list, dis_list
 
 
 #
@@ -259,16 +260,19 @@ def grey_s(env,  model, surro_model, adv_model, epsilon, total_epoch):
     reach = 0
     violate = 0
     rho_list = []
+    dist_list = []
     perturb_rho_list = []
     while True:
         # attack = black_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
         rho = []
         perturb_rho = []
         obs, info = env.reset()
+        dist = []
         while True:
             goal_dist = 3 - 3 * max(obs[12:28])
             obs_dist = 3 - 3 * max(obs[28:44])
             rho.append(-goal_dist)
+            dist.append(obs_dist)
             attack = white_attack(env, obs, model=surro_model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon)
             obs = attack + obs
             pertub_goal_dist = 3 - 3 * max(obs[12:28])
@@ -281,19 +285,19 @@ def grey_s(env,  model, surro_model, adv_model, epsilon, total_epoch):
             if done or trun:
                 rho_list.append(rho)
                 perturb_rho_list.append(perturb_rho)
+                dist_list.append(dist)
                 epoch += 1
                 goal_dist = 3 - 3 * max(obs[12:28])
                 obs_dist = 3 - 3 * max(obs[28:44])
                 if goal_dist < 0.4:
                     reach += 1
                 elif obs_dist < 0.2:
-                    # dis_list.append(dis)
                     violate += 1
                 break
         if epoch >= total_epoch:
             break
-    print(f'Grey box without control policy violation:{violate}, reach:{ reach}')
-    return rho_list, perturb_rho_list
+    print(f'Grey box without control policy violation:{violate}, reach:{ reach}, violation prob:{violate / total_epoch}, reach prob:{reach / total_epoch}')
+    return rho_list, perturb_rho_list, dist_list
 
 
 ## grey box: without sys
@@ -303,15 +307,18 @@ def grey_c(env,  model, surro_model, adv_model, epsilon, total_epoch=100):
     violate = 0
     rho_list = []
     perturb_rho_list = []
+    dist_list = []
     while True:
         # attack = black_attack(env, obs, model, surro_model=model, adv_model=adv_model, epsilon=0.5)
         rho = []
         perturb_rho = []
         obs, info = env.reset()
+        dist = []
         while True:
             goal_dist = 3 - 3 * max(obs[12:28])
             obs_dist = 3 - 3 * max(obs[28:44])
             rho.append(-goal_dist)
+            dist.append(obs_dist)
             attack = black_attack(env, obs, model=model, surro_model=model, adv_model=adv_model, epsilon=epsilon)
             obs = attack + obs
             pertub_goal_dist = 3 - 3 * max(obs[12:28])
@@ -324,18 +331,18 @@ def grey_c(env,  model, surro_model, adv_model, epsilon, total_epoch=100):
             if done or trun:
                 rho_list.append(rho)
                 perturb_rho_list.append(perturb_rho)
+                dist_list.append(dist)
                 epoch += 1
                 goal_dist = 3 - 3 * max(obs[12:28])
                 obs_dist = 3 - 3 * max(obs[28:44])
                 if goal_dist < 0.4:
                     reach += 1
                 elif obs_dist < 0.2:
-                    # dis_list.append(dis)
                     violate += 1
                 break
         if epoch >= total_epoch:
             break
-    print(f'Grey box without sys violation:{violate}, reach:{ reach}')
-    return rho_list, perturb_rho_list
+    print(f'Grey box without sys violation:{violate}, reach:{ reach}, violation prob:{violate / total_epoch}, reach prob:{reach / total_epoch}')
+    return rho_list, perturb_rho_list, dist_list
 
 
