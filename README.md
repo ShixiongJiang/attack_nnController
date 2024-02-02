@@ -12,6 +12,6 @@ If you are trying to apply this work to a new system, you can build a new folder
    b. train.py You can specify the training algorithms here, if you are trying to implement a new training algorithm, you can modify this file.\
    c. run.py You can specify the output of the results such as settings of the plots etc.\
    d. xxx_env.py This file should have the gym-like environment for training, you can also embed the system dynamics(ODE) into the this file.\
-   e. baseline.py This file contains the baselines we compared to our method, you can adjust parameters of them.\
+   e. baseline.py This file contains the baselines we compared to our method, you can adjust parameters of them.
    
 There are some uitlity files we have for this work mainly for the attacks which includes MAD attack, gradient attack and laa_attack, you may use it for convinience.
