@@ -15,3 +15,9 @@ If you are trying to apply this work to a new system, you can build a new folder
    e. baseline.py This file contains the baselines we compared to our method, you can adjust parameters of them.
    
 There are some uitlity files we have for this work mainly for the attacks which includes MAD attack, gradient attack and laa_attack, you may use it for convinience.
+Below is an example of steps that if a user want to use this repo to train a new benchmark:
+1. Build a xxx_env.py, then make sure it compatible with existing packages such as stable_baselines, there are usually three things need to be checked: the dimension of observation space and action space, the continuity of these spaces, the reward function you want to use to achieve safe RL.
+2. Build the attack_methods.py, you should implement your attack here or you can use our attacks. If you system is linear, you can just use the one for DC motor. If you system is non-linear, you can just use the one for bicycle.
+3. Build train.py, choose your trainning algorithms, we use stable_baselines for training, several common algorithms are supported such as SAC, PPO, TD3 etc. You can specify your own in this file, too.
+4. Build run.py, after you have above programs, you can start the testing, you can customize the output format and monitor it. Additionally, you can also customize the visulization settings here to have a qualitative view of attack effectiveness.
+5. Build the baselines.py, you can implement other baselines here that you want to compare with or use the implemented baselines we provided.
