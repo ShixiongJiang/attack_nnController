@@ -11,7 +11,7 @@ class PointGoal1(gymnasium.Env):
     def __init__(self, config=None):
         # super(SafetyPointGoal1, self).__init__()
         env_id = 'SafetyPointGoalHazard0-v0'
-        safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode=None)
+        safety_gymnasium_env = safety_gymnasium.make(env_id, render_mode='human')
         self.env = safety_gymnasium.wrappers.SafetyGymnasium2Gymnasium(safety_gymnasium_env)
         self.action_space = self.env.action_space
         self.observation_space = self.env.observation_space
@@ -26,6 +26,10 @@ class PointGoal1(gymnasium.Env):
         self.avoid_reward_cache = []
         self.final_reward_cache = []
         self.steps = 0
+        f = np.load('./data/estimated_model_pointgoal.npz', 'wb')
+        self.A = f['A']
+        self.B = f['B']
+
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         obs, info = self.env.reset()
@@ -34,7 +38,8 @@ class PointGoal1(gymnasium.Env):
 
     def step(self, action):
         self.steps += 1
-        action[0] = action[0] / 20
+        # action[0] = action[0] / 20
+        # action[0] = action[1] / 20
         # print(action)
         obs, rew, done,truncated, info = self.env.step(action)
         goal_dist = 3 - 3 *max(obs[12:28])

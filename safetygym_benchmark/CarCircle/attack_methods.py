@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from stable_baselines3 import PPO, SAC
+from scipy.optimize import Bounds, minimize
 
 
 def black_attack(env, state, model, surro_model, adv_model, epsilon):
@@ -66,38 +67,58 @@ def black_attack(env, state, model, surro_model, adv_model, epsilon):
         # print('find solution')
         return attack
 
-def get_op_action(env):
+def get_op_action(_state, _action, previous_u, A, B):
+    def control_objective(u, x_current, A, B):
+        # Predict the next state using the linear model
+        x_next = A @ x_current + B @ u
 
-    x = env.agent.pos[0]
-    y = env.agent.pos[1]
-    vel = env.agent.vel
-    u, v, _ = vel
-    velo = math.sqrt(u**2 + v ** 2)
-    action = [0, 0]
-    if x >= 0 :
-        if u >= 0:
-            if v >= 0:
-                action = [1 - abs(v) * 5, 1  ]
-            else:
-                action = [1,  1 - abs(v)* 5]
-        else:
-            if v >= 0:
-                action = [-1, 1 ]
-            else:
-                action = [1, -1]
-    else:
-        if u <= 0:
-            if v >= 0:
-                action = [  1, 1 - abs(v) * 5  ]
-            else:
-                action = [ 1 - abs(v) * 5, 1]
-        else:
-            if v >= 0:
-                action = [1, -1]
+        # Objective: maximize the maximum value in state[28:44]
+        # Since most optimizers minimize, we return the negative of the objective
+        return -np.abs(x_next[40]) - np.abs(x_next[41])
 
-            else:
-                action = [-1, 1]
-    return action
+    # Initial guess for control input
+    u_initial = np.zeros(2)  # Replace with an initial guess for the control input (2-dimensional)
+
+    # Bounds for control inputs (if applicable)
+    u_bounds = [(-1, 1), (-1, 1)]  # Replace with actual bounds
+
+    # Perform the optimization to maximize the desired state value
+    result = minimize(control_objective, u_initial, args=(_state, A, B), bounds=u_bounds, method='SLSQP')
+
+    # Extract the optimal control input
+    u_opt = result.x
+    return u_opt
+
+    # x = env.agent.pos[0]
+    # y = env.agent.pos[1]
+    # vel = env.agent.vel
+    # u, v, _ = vel
+    # velo = math.sqrt(u**2 + v ** 2)
+    # action = [0, 0]
+    # if x >= 0 :
+    #     if u >= 0:
+    #         if v >= 0:
+    #             action = [1 - abs(v) * 5, 1  ]
+    #         else:
+    #             action = [1,  1 - abs(v)* 5]
+    #     else:
+    #         if v >= 0:
+    #             action = [-1, 1 ]
+    #         else:
+    #             action = [1, -1]
+    # else:
+    #     if u <= 0:
+    #         if v >= 0:
+    #             action = [  1, 1 - abs(v) * 5  ]
+    #         else:
+    #             action = [ 1 - abs(v) * 5, 1]
+    #     else:
+    #         if v >= 0:
+    #             action = [1, -1]
+    #
+    #         else:
+    #             action = [-1, 1]
+    # return action
 def white_attack(env, state, model, surro_model, adv_model, epsilon):
     action = model.predict(state)[0]
     #     print(action)
@@ -107,7 +128,7 @@ def white_attack(env, state, model, surro_model, adv_model, epsilon):
     _state = state
     state_range = np.array([epsilon])
     # print(state_range)
-    op_action = get_op_action(env)
+    op_action = get_op_action(_state=_state, _action=_action, A=env.A, B=env.B)
     #     op_action = (result.x)
     state = torch.from_numpy(state)
 

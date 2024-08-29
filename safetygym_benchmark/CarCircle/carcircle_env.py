@@ -27,6 +27,9 @@ class CarCircleEnv(gymnasium.Env):
         self.steps = 0
 
         self.agent = self.env.unwrapped._agent()
+        f = np.load('./data/estimated_model_carcircle.npz', 'wb')
+        self.A = f['A']
+        self.B = f['B']
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)

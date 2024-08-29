@@ -1,9 +1,10 @@
 import math
 
 import numpy as np
+import cvxpy as cp
 
 import torch
-
+from scipy.optimize import Bounds, minimize
 
 
 def black_attack(env, state, model, surro_model, adv_model, epsilon):
@@ -65,31 +66,76 @@ def black_attack(env, state, model, surro_model, adv_model, epsilon):
         # print('find solution')
         return attack
 
-def get_op_action(obs):
-    obstacle = np.argmax(obs[28:44])
 
-    turn = obs[4]
-    velo = obs[3]
-    if obstacle > 4 and obstacle < 12:
-        action0 = -1
-    else:
-        action0 = 1
-    if obstacle > 4 and obstacle < 12:
-        if obstacle < 8:
-            action1 = -1 * (8 - obstacle) / 3 * abs(velo * 5) / (3 - 3 * max(obs[28:44]))
-        elif obstacle > 8:
-            action1 = 1 * (obstacle - 8) / 3 * abs(velo * 5) / (3 - 3 * max(obs[28:44]))
-        else:
-            action1 = 0
-    else:
-        if obstacle <= 4:
-            action1 = 1 * (obstacle + 1) / 3 * abs(velo * 5) / (3 - 3 * max(obs[28:44]))
-        elif obstacle >= 13 and obstacle < 16:
-            action1 = -1 * (15 - obstacle) / 3 * abs(velo * 5) / (3 - 3 * max(obs[28:44]))
-        else:
-            action1 = 0
-    action = [action0, action1]
-    return action
+def get_op_action(_state, _action, previous_u, A, B):
+    def control_objective(u, x_current, A, B):
+        # Predict the next state using the linear model
+        x_next = A @ x_current + B @ u
+
+        # Objective: maximize the maximum value in state[28:44]
+        # Since most optimizers minimize, we return the negative of the objective
+        return -np.max(x_next[28:44])
+
+    # Initial guess for control input
+    u_initial = np.zeros(2)  # Replace with an initial guess for the control input (2-dimensional)
+
+    # Bounds for control inputs (if applicable)
+    u_bounds = [(-1, 1), (-1, 1)]  # Replace with actual bounds
+
+    # Perform the optimization to maximize the desired state value
+    result = minimize(control_objective, u_initial, args=(_state, A, B), bounds=u_bounds, method='SLSQP')
+
+    # Extract the optimal control input
+    u_opt = result.x
+    return u_opt
+
+    # def fun(x, A, B, _state, previous_u, lambda_reg=0):
+    #
+    #     predicted_state = _state
+    #     for _ in range(horizon):
+    #         predicted_state = A @ predicted_state + B @ x
+    #
+    #     max_value = np.max(predicted_state[28:44])
+    #     regularization = lambda_reg * np.sum((x - previous_u)**2)
+    #     # Return the negative of the max value
+    #     return -max_value + regularization
+    #
+    # # Define horizon
+    # horizon = 1  # You can extend this
+    # lim = [-1, 1]
+    # bounds = Bounds(lim[0], lim[1])
+    #
+    # result = minimize(fun, _action, args=(A, B, _state, previous_u), method='Powell', bounds=bounds)
+    # op_action = result.x
+    #
+    # return op_action
+
+# def get_op_action(obs):
+
+    # obstacle = np.argmax(obs[28:44])
+    #
+    # turn = obs[4]
+    # velo = obs[3]
+    # if obstacle > 4 and obstacle < 12:
+    #     action0 = -1
+    # else:
+    #     action0 = 1
+    # if obstacle > 4 and obstacle < 12:
+    #     if obstacle < 8:
+    #         action1 = -1 * (8 - obstacle) / 3 * abs(velo * 5) / (3 - 3 * max(obs[28:44]))
+    #     elif obstacle > 8:
+    #         action1 = 1 * (obstacle - 8) / 3 * abs(velo * 5) / (3 - 3 * max(obs[28:44]))
+    #     else:
+    #         action1 = 0
+    # else:
+    #     if obstacle <= 4:
+    #         action1 = 1 * (obstacle + 1) / 3 * abs(velo * 5) / (3 - 3 * max(obs[28:44]))
+    #     elif obstacle >= 13 and obstacle < 16:
+    #         action1 = -1 * (15 - obstacle) / 3 * abs(velo * 5) / (3 - 3 * max(obs[28:44]))
+    #     else:
+    #         action1 = 0
+    # action = [action0, action1]
+    # return action
 def white_attack(env, state, model, surro_model, adv_model, epsilon):
     action = model.predict(state)[0]
     #     print(action)
@@ -99,8 +145,8 @@ def white_attack(env, state, model, surro_model, adv_model, epsilon):
     _state = state
     state_range = np.array([epsilon])
     # print(state_range)
-    op_action = get_op_action(_state)
-    #     op_action = (result.x)
+    # op_action = get_op_action(_state)
+    op_action = get_op_action(_state=_state, _action=_action, A=env.A, B=env.B)
     state = torch.from_numpy(state)
 
     state = state.detach().unsqueeze(0).requires_grad_(True)

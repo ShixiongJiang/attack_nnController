@@ -10,14 +10,14 @@ adv_model = PPO.load('./model/adv_PPO_PointGoal.zip')
 laa_model = PPO.load('./model/laa_PPO_PointGoal.zip')
 
 obs, info = env.reset()
-total_epoch = 5
+total_epoch = 10
 env = PointGoal1()
 
 # for epsilon in [0.01, 0.05, 0.15, 0.1]:
 for epsilon in [0.10]:
     print(f'PointGoal Benchmark with epsilon {epsilon}')
-    _, _, black_dist_list = black(env=env, model=model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon,
-                                  total_epoch=total_epoch)
+    # _, _, black_dist_list = black(env=env, model=model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon,
+    #                               total_epoch=total_epoch)
     _, _, white_dist_list = white(env=env, model=model, surro_model=surro_model, adv_model=adv_model,
                                   epsilon=epsilon, total_epoch=total_epoch)
     _, _, grey_c_dist_list = grey_c(env=env, model=model, surro_model=surro_model, adv_model=adv_model, epsilon=epsilon,
